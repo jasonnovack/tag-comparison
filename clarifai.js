@@ -1,8 +1,4 @@
 function getCredentials(cb) {
-  getClarifaiCredentials(cb)
-}
-
-function getClarifaiCredentials(cb) {
   var data = {
     'grant_type': 'client_credentials',
     'client_id': CLARIFAI_CLIENT_ID,
@@ -44,6 +40,7 @@ function postImage(imgurl) {
   postImagga(imgurl);
   postMetamind(imgurl);
   //postGoogle(imgurl);
+  postMicrosoft(imgurl);
 }
 
 function BGcolor(imgurl) {
@@ -81,8 +78,6 @@ function parseClarifaiResponse(resp, imgurl) {
     var results = resp.results;
     tags = results[0].result.tag.classes.slice(0, 10);
     probs = results[0].result.tag.probs.slice(0, 10);
-
-    $('#photos').append('<div><img src="' + imgurl + '" /></div>');
 
     $('#clarifai').append('<h2>Clarifai</h2><br>');
     for (i=0; i < tags.length; i++) {
@@ -188,8 +183,6 @@ function GoogleRequest(imageData) {
 
 }
 
-
-
   // return $.ajax({
   //   'url': 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyAgG6wcRuTN1Sz85StvjYt8wD2_PoHB1T8',
   //   'dataType': "xml/html/script/json", // expected format for response
@@ -229,11 +222,46 @@ function parseGoogleResponse(resp, imgurl) {
   } 
 }
 
+function postMicrosoft(imgurl) {
+  return fetch('https://api.projectoxford.ai/vision/v1/analyses?visualFeatures=Categories', {
+    method: 'post',
+    body: JSON.stringify({ 
+      "Url": imgurl 
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Host': 'api.projectoxford.ai',
+      'Content-Length': '117',
+      'Ocp-Apim-Subscription-Key': 'cfe984ef47814ef6b8d180dc161ab47d'
+    } }).then(function(resp){ return resp.json()})
+        .then(function(r){
+    paseMicrosoft(r, imgurl);
+  });
+}
+
+function paseMicrosoft(resp, imgurl) {
+  var results = resp.categories;
+  tags = [];
+  probs = [];
+  for (i=0; i < Math.min(10,results.length); i++) {
+    tags.push(results[i].name);
+    probs.push(results[i].score);
+  }
+
+  $('#microsoft').append('<h2>Microsoft</h2><br>'); 
+  for (i=0; i < tags.length; i++) {
+    $('#microsoft').append('<span style="opacity:' + probs[i]*4 + '">' + tags[i] + '</span><br></div>');
+  } 
+}
+
 function run(imgurl) {
   $('#clarifai').html("");
   $('#metamind').html("");
   $('#imagga').html("");
+  $('#microsoft').html("");
   $('#photos').html("");
+
+  $('#photos').append('<div><img src="' + imgurl + '" /></div>');
   if (localStorage.getItem('tokenTimeStamp') - Math.floor(Date.now() / 1000) > 86400
     || localStorage.getItem('token') === null) {
     getCredentials(function() {
