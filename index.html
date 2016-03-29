@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Chihuahua or Muffin</title>
+  <title>Image Recognition Showdown</title>
 
   <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script type="text/javascript" src="keys.js"></script>
@@ -11,13 +11,17 @@
 <body>
   <div class="container">
     <div class="heading">
-      <h1>Chihuahua or Muffin?</h1>
+      <h1>BATTLE [of the] BOTS</h1>
     </div>
     <div class="input-group">
       <input type="text" id="imgurl" placeholder="Image URL"/>
       <button onclick="run($('#imgurl').val())">Get tags!</button>
     </div>
     <div id="photos"></div>
+    <div id="results">
+      <div id="clarifai"></div>
+      <div id="imagga"></div>
+      <div id="metamind"></div>
   </div>
 </body>
 </html>
